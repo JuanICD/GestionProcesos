@@ -1,8 +1,10 @@
+import java.time.LocalDate;
+
 public class Alumno {
     String nombre;
     String apellido;
     String dni;
-    String fechaNacimiento;
+    LocalDate fechaNacimiento;
     float notaMedia;
 
     public String getNombre() {
@@ -29,11 +31,11 @@ public class Alumno {
         this.dni = dni;
     }
 
-    public String getFechaNacimiento() {
+    public LocalDate getFechaNacimiento() {
         return fechaNacimiento;
     }
 
-    public void setFechaNacimiento(String fechaNacimiento) {
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
         this.fechaNacimiento = fechaNacimiento;
     }
 
@@ -45,7 +47,7 @@ public class Alumno {
         this.notaMedia = notaMedia;
     }
 
-    public Alumno(String nombre, String apellido, String dni, String fechaNacimiento, float notaMedia) {
+    public Alumno(String nombre, String apellido, String dni, LocalDate fechaNacimiento, float notaMedia) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;

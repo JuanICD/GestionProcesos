@@ -1,3 +1,7 @@
+import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ProcesoPrincipal {
@@ -23,7 +27,7 @@ public class ProcesoPrincipal {
                 opcion = sc.nextLine();
                 switch (opcion) {
                     case "1" -> buscarDNI();
-                    case "2" -> insertarAlumno();
+                    case "2" -> insertarAlumnoV2();
                     case "3" -> obtenerDatosAlumno();
                     case "4" -> {
                         System.out.println("Saliendo...");
@@ -39,62 +43,136 @@ public class ProcesoPrincipal {
         }
     }
 
-    private static void insertarAlumno() {
+    private static void insertarAlumnoV2() {
+        try {
 
-        System.out.println("Escribe REINICIAR para volver al menu principal");
+            System.out.println("Escribe REINICIAR para volver al menu principal");
+            //Creacion del alumno
+            Alumno alumno = new Alumno();
 
-        Alumno alumno = new Alumno();
+            do {
+                System.out.println("Escribe el nombre del alumno");
+                String nombre = sc.nextLine();
+                if (nombre.equalsIgnoreCase("REINICIAR")) {
+                    System.out.println("Insercion cancelada, volviendo al menu principal...");
+                    return;
+                }
 
-        String nombre = validarDato("nombre");
+                if (nombre.isBlank()) {
+                    System.out.println("El campo no puede estar vacio");
+                } else {
 
-        if (nombre.equalsIgnoreCase("REINICIAR")) {
-            System.out.println("Insercion cancelada, volviendo al menu principal...");
-            return;
+                    alumno.setNombre(nombre);
+                }
+
+            } while (alumno.getNombre() == null);
+
+            do {
+                System.out.println("Escribe el apellido del alumno");
+                String apellido = sc.nextLine();
+                if (apellido.equalsIgnoreCase("REINICIAR")) {
+                    System.out.println("Insercion cancelada, volviendo al menu principal...");
+                    return;
+                }
+
+                if (apellido.isBlank()) {
+                    System.out.println("El campo no puede estar vacio");
+                } else {
+                    alumno.setApellido(apellido);
+                }
+            } while (alumno.getApellido() == null);
+
+            do {
+                System.out.println("Escribe el DNI del alumno");
+                String dni = sc.nextLine();
+                if (dni.equalsIgnoreCase("REINICIAR")) {
+                    System.out.println("Insercion cancelada, volviendo al menu principal...");
+                    return;
+                }
+
+                if (dni.isBlank()) {
+                    System.out.println("El campo no puede estar vacio");
+                } else {
+
+                    alumno.setDni(dni);
+                }
+            } while (alumno.getDni() == null);
+
+            insertarFecha(alumno);
+            insertarNota(alumno);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
-        alumno.setNombre(nombre);
-        //System.out.println("Nombre guardado: " + alumno.getNombre());
-
-        String apellido = validarDato("apellido");
-
-        if (apellido.equalsIgnoreCase("REINICIAR")) {
-            System.out.println("Insercion cancelada, volviendo al menu principal...");
-            return;
-        }
-        alumno.setApellido(apellido);
-
-        String dni = validarDato("dni");
-        if (dni.equalsIgnoreCase("REINICIAR")){
-            System.out.println("Insercion cancelada, volviendo al menu principal...");
-            return;
-        }
-        alumno.setDni(dni);
-
-        String fechaNacimiento = validarDato("fecha de nacimiento");
-        if (fechaNacimiento.equalsIgnoreCase("REINICIAR")){
-            System.out.println("Insercion cancelada, volviendo al menu principal...");
-            return;
-
-        }
-        alumno.setFechaNacimiento(fechaNacimiento);
 
 
     }
 
-    private static String validarDato(String dato) {
-        String datoLeido;
-        while (true) {
-            System.out.println("Introduce el " + dato + " del alumno");
-            datoLeido = sc.nextLine();
-            if (datoLeido.equalsIgnoreCase("REINICIAR")) {
-                return datoLeido;
-            }
-            if (datoLeido.isBlank()) {
-                System.out.println("El campo no puede estar vacio");
-            } else {
-                return datoLeido;
-            }
-        }
+    private static void insertarNota(Alumno alumno) {
 
+        boolean notaValida = false;
+
+        do {
+            try {
+                System.out.println("Introduce la nota del alumno (deja en blanco para 0): ");
+                String strNota = sc.nextLine();
+
+                float nota;
+
+                if (strNota.isBlank()) {
+                    nota = 0.0f;
+                } else {
+                    nota = Float.parseFloat(strNota);
+                }
+
+                if (nota < 0.0f || nota > 10.0f) {
+                    System.err.println("Error: La nota debe estar entre 0 y 10.");
+                } else {
+                    alumno.setNotaMedia(nota);
+                    System.out.println("Nota guardada: " + nota);
+                    notaValida = true;
+                }
+
+            } catch (NumberFormatException e) {
+                System.err.println("Error: Debe introducir un número válido o dejarlo en blanco.");
+            }
+
+        } while (!notaValida);
+    }
+
+    private static void insertarFecha(Alumno alumno) {
+        LocalDate fechaNacimiento = null;
+        do {
+            try {
+
+                System.out.println("Fecha de nacimiento del alumno (DD/MM/AAAA): ");
+
+                System.out.println("Día:");
+                int dia = Integer.parseInt(sc.nextLine());
+                if (dia < 1 || dia > 31)
+                    throw new Exception("El día introducido no es válido");
+
+                System.out.println("Mes:");
+                int mes = Integer.parseInt(sc.nextLine());
+                if (mes < 1 || mes > 12)
+                    throw new Exception("El mes introducido no es válido");
+
+                System.out.println("Año:");
+                int anio = Integer.parseInt(sc.nextLine());
+
+
+                fechaNacimiento = LocalDate.of(anio, mes, dia);
+                alumno.setFechaNacimiento(fechaNacimiento);
+
+
+            } catch (DateTimeException e) {
+                System.err.println("Error: La fecha introducida no es válida. Inténtelo de nuevo.");
+            } catch (NumberFormatException error) {
+                System.err.println("Error: Debe introducir un número. Inténtelo de nuevo.");
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        } while (alumno.getFechaNacimiento() == null);
 
     }
 
