@@ -1,9 +1,7 @@
 import java.io.IOException;
-import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class ProcesoPrincipal {
@@ -21,15 +19,15 @@ public class ProcesoPrincipal {
             boolean seguir = true;
             do {
                 System.out.println("""
-                        1. Búsqueda de alumno por DNI.
-                        2. Insertar un nuevo alumno.
+                        1. Insertar un nuevo alumno.
+                        2. Búsqueda de alumno por DNI.
                         3. Obtener todos los alumnos.
                         4. Finalizar.
                         """);
                 opcion = sc.nextLine();
                 switch (opcion) {
-                    case "1" -> buscarDNI();
-                    case "2" -> insertarAlumnoV2();
+                    case "1" -> insertarAlumnoV2();
+                    case "2" -> buscarDNI();
                     case "3" -> obtenerDatosAlumno();
                     case "4" -> {
                         System.out.println("Saliendo...");
@@ -88,7 +86,8 @@ public class ProcesoPrincipal {
             sb.append(fecha + ", ");
             sb.append(nota);
             String datosJuntos = sb.toString();
-            lanzarProcesoAlmacenamiento(datosJuntos);
+
+            lanzarProcesoAlmacenamiento(datosJuntos + "\n");
 
 
         } catch (Exception e) {
@@ -101,7 +100,7 @@ public class ProcesoPrincipal {
     private static void lanzarProcesoAlmacenamiento(String datosJuntos) {
         try {
 
-            ProcessBuilder pb = new ProcessBuilder("java", "ProcesoAlmacenamiento");
+            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "target/classes", "ProcesoAlmacenamiento");
             Process proceso = pb.start();
             proceso.getOutputStream().write(datosJuntos.getBytes());
             proceso.getOutputStream().close();
@@ -209,7 +208,21 @@ public class ProcesoPrincipal {
 
 
     private static void obtenerDatosAlumno() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "target/classes", "ProcesoDevolucion");
+            Process proceso = pb.start();
 
+        }catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+
+
+        lanzarProcesoDevolucion("datos devueltos");
+
+    }
+
+    private static void lanzarProcesoDevolucion(String datosRecibidos) {
 
     }
 
