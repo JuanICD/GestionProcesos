@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -26,7 +29,7 @@ public class ProcesoPrincipal {
                         """);
                 opcion = sc.nextLine();
                 switch (opcion) {
-                    case "1" -> insertarAlumnoV2();
+                    case "1" -> insertarAlumno();
                     case "2" -> buscarDNI();
                     case "3" -> obtenerDatosAlumno();
                     case "4" -> {
@@ -38,12 +41,12 @@ public class ProcesoPrincipal {
 
             } while (seguir);
 
-        } catch (Exception e) {
-            e.getMessage();
+        } catch (NullPointerException exception) {
+            System.err.println(exception.getMessage());
         }
     }
 
-    private static void insertarAlumnoV2() {
+    private static void insertarAlumno() {
         try {
 
             System.out.println("Escribe REINICIAR para volver al menu principal");
@@ -79,13 +82,11 @@ public class ProcesoPrincipal {
                 return;
             alumno.setNotaMedia(Float.parseFloat(nota));
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(nombre + ", ");
-            sb.append(apellido + ", ");
-            sb.append(dni + ", ");
-            sb.append(fecha + ", ");
-            sb.append(nota);
-            String datosJuntos = sb.toString();
+            String datosJuntos = nombre + ", " +
+                    apellido + ", " +
+                    dni + ", " +
+                    fecha + ", " +
+                    nota;
 
             lanzarProcesoAlmacenamiento(datosJuntos + "\n");
 
@@ -208,25 +209,53 @@ public class ProcesoPrincipal {
 
 
     private static void obtenerDatosAlumno() {
+        System.out.println("Inicianddo busqueda de alumnos");
+        String todos = "TODOS";
+        lanzarProcesoDevolucion(todos);
+
+
+    }
+
+    private static void lanzarProcesoDevolucion(String dniAlumno) {
         try {
             ProcessBuilder pb = new ProcessBuilder("java", "-cp", "target/classes", "ProcesoDevolucion");
             Process proceso = pb.start();
 
-        }catch (Exception e) {
+            try (PrintWriter writer = new PrintWriter(proceso.getOutputStream())) {
+
+                writer.println(dniAlumno);
+            }
+
+
+            //Leer la respuesta que devuelve la clase ProcesoDevolucion
+            try (BufferedReader bf = new BufferedReader(new InputStreamReader(proceso.getInputStream()))) {
+
+                String res;
+                while ((res = bf.readLine()) != null) {
+                    System.out.println(res);
+                }
+            }
+            proceso.waitFor();
+
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-
-
-
-        lanzarProcesoDevolucion("datos devueltos");
-
-    }
-
-    private static void lanzarProcesoDevolucion(String datosRecibidos) {
-
     }
 
     private static void buscarDNI() {
+        System.out.println("Iniciando proceso de buscar DNI...");
+        System.out.println("Introduzca el dni del alumno: ");
+        String dni = sc.nextLine();
+        if (dni.equalsIgnoreCase("REINICIAR")) {
+            System.out.println("Busqueda cancelada...");
+            return;
+        }
+        if (dni.isBlank()) {
+            System.err.println("El DNI no puede estar vacio");
+            return;
+        }
+        lanzarProcesoDevolucion(dni);
+
     }
 
 }
